@@ -6,9 +6,11 @@ import {
   MemberRequest,
   useStreamVideoClient,
 } from "@stream-io/video-react-sdk";
-import { Loader2 } from "lucide-react";
+import { Copy, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { getUserIds } from "./actions";
+import PrimaryButton from "./components/PrimaryButton";
+import Link from "next/link";
 
 export default function CreateMeetingPage() {
   const [descriptionInput, setDescriptionInput] = useState("");
@@ -79,9 +81,9 @@ export default function CreateMeetingPage() {
           value={participantsInput}
           onChange={setParticipantsInput}
         />
-        <button className="w-full" onClick={createMeeting}>
+        <PrimaryButton className="w-full" onClick={createMeeting}>
           Create meeting
-        </button>
+        </PrimaryButton>
       </div>
 
       {call && <MeetingLink call={call} />}
@@ -232,5 +234,60 @@ interface MeetingLinkProps {
 
 function MeetingLink({ call }: MeetingLinkProps) {
   const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${call.id}`;
-  return <div className="text-center">{meetingLink}</div>;
+  return (
+    <div className="flex flex-col items-center gap-3 text-center">
+      <div className="items-center gap-3">
+        <span>
+          Invitation link:{" "}
+          <Link target="_blank" href={meetingLink} className="font-medium">
+            {meetingLink}
+          </Link>
+        </span>
+        <button
+          title="copy invitation link"
+          onClick={() => {
+            navigator.clipboard.writeText(meetingLink);
+            alert("coppied!");
+          }}
+        >
+          <Copy />
+        </button>
+      </div>
+      <a
+        target="_blank"
+        className="text-red-950 hover:underline"
+        href={getMailToLink(
+          meetingLink,
+          call.state.startedAt,
+          call.state.custom.description,
+        )}
+      >
+        Send email invitation
+      </a>
+    </div>
+  );
+}
+
+function getMailToLink(
+  meetingLink: string,
+  startsAt?: Date,
+  description?: string,
+) {
+  const startDateFormatted = startsAt
+    ? startsAt.toLocaleString("en-US", {
+        dateStyle: "full",
+        timeStyle: "short",
+      })
+    : undefined;
+
+  const subject =
+    "Join my meeting " + (startDateFormatted ? `at ${startDateFormatted}` : "");
+  const body =
+    `Join my meeting at ${meetingLink}.` +
+    (startDateFormatted
+      ? `\n\nThe meeting starts at${startDateFormatted}`
+      : "") +
+    (description ? `\n\nDescription: ${description}` : "");
+
+  return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

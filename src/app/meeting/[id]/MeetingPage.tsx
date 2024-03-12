@@ -28,7 +28,7 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     return (
       <button
         onClick={async () => {
-          const call = client.call("default", id);
+          const call = client.call("PrivateMeeting", id);
           await call.join();
           setCall(call);
         }}
