@@ -38,9 +38,9 @@ export default function CreateMeetingPage() {
       const members: MemberRequest[] = memeberIds
         .map((id) => ({
           user_id: id,
-          role: "call_memeber",
+          role: "call_member",
         }))
-        .concat({ user_id: user.id, role: "call_memeber" })
+        .concat({ user_id: user.id, role: "call_member" })
         .filter(
           //remove duplicates from the memembers list
           (v, i, a) => a.findIndex((v2) => v2.user_id === v.user_id) === i,
