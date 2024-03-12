@@ -1,9 +1,14 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
+import {
+  Call,
+  MemberRequest,
+  useStreamVideoClient,
+} from "@stream-io/video-react-sdk";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { getUserIds } from "./actions";
 
 export default function CreateMeetingPage() {
   const [descriptionInput, setDescriptionInput] = useState("");
@@ -21,13 +26,36 @@ export default function CreateMeetingPage() {
       return;
     }
     try {
+      const callType = participantsInput ? "PrivateMeeting" : "default";
       const id = crypto.randomUUID();
-      const call = client.call("default", id);
+      const call = client.call(callType, id);
+
+      const memeberEmails = participantsInput
+        .split(",")
+        .map((email) => email.trim());
+      const memeberIds = await getUserIds(memeberEmails);
+
+      const members: MemberRequest[] = memeberIds
+        .map((id) => ({
+          user_id: id,
+          role: "call_memeber",
+        }))
+        .concat({ user_id: user.id, role: "call_memeber" })
+        .filter(
+          //remove duplicates from the memembers list
+          (v, i, a) => a.findIndex((v2) => v2.user_id === v.user_id) === i,
+        );
+
+      const starts_at = new Date(startTimeInput || Date.now()).toISOString();
+
       await call.getOrCreate({
         data: {
+          starts_at,
           custom: { description: descriptionInput },
+          members,
         },
       });
+
       setCall(call);
     } catch (error) {
       console.log(error);
