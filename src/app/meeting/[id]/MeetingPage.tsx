@@ -4,6 +4,7 @@ import AudioVolumeIndicator from "@/app/components/AudioVolumeIndicator";
 import FlexibleCallLayout from "@/app/components/FlexibleCallLayout";
 import PermissionPrompt from "@/app/components/PermissionPrompt";
 import PrimaryButton from "@/app/components/PrimaryButton";
+import RecordingsList from "@/app/components/RecordingsList";
 import useLoadCall from "@/hooks/useLoadCall";
 import useStreamCall from "@/hooks/useStreamCall";
 import { useUser } from "@clerk/nextjs";
@@ -206,6 +207,10 @@ function MeetingEndedScreen() {
     <div className="flex flex-col items-center gap-6">
       <p>This meeting has ended</p>
       <Link href="/" className="underline"></Link>
+      <div className="space-y-3">
+        <h2 className="text-center text-xl font-bold">Recordings</h2>
+        <RecordingsList />
+      </div>
     </div>
   );
 }
