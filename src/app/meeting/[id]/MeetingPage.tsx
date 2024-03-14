@@ -52,10 +52,9 @@ export default function MeetingPage({ id }: MeetingPageProps) {
   }
   const notAllowedToJoin =
     (call.type === "PrivateMeeting" && !user) ||
-    (user && !call.state.members.find((m) => m.user.id === user.id));
-
-  console.log("notAllowedToJoin", notAllowedToJoin);
-  console.log("user", call.state.members);
+    (user &&
+      !call.state.members.find((m) => m.user.id === user.id) &&
+      call.type === "PrivateMeeting");
 
   if (notAllowedToJoin) {
     return (
